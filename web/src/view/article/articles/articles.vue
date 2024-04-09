@@ -413,7 +413,7 @@ const type = ref('')
 
 // 更新行
 const updateArticlesFunc = async(row) => {
-    const res = await findArticles({ id: row.ID })
+    const res = await findArticles({ id: row.id })
     type.value = 'update'
     if (res.code === 0) {
         formData.value = res.data.rearticles
@@ -424,7 +424,7 @@ const updateArticlesFunc = async(row) => {
 
 // 删除行
 const deleteArticlesFunc = async (row) => {
-    const res = await deleteArticles({ id: row.ID })
+    const res = await deleteArticles({ id: row.id })
     if (res.code === 0) {
         ElMessage({
                 type: 'success',
@@ -460,7 +460,6 @@ const getDetails = async (row) => {
     openDetailShow()
   }
 }
-
 
 // 关闭详情弹窗
 const closeDetailShow = () => {
