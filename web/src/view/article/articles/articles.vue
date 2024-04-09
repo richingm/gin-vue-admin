@@ -58,8 +58,8 @@
         <el-table-column type="selection" width="55" />
         <el-table-column align="left" label="id" prop="id" width="120" />
         <el-table-column align="left" label="标题" prop="title" width="120" />
-        <el-table-column align="left" label="上级文章" prop="pid" width="120" />
-        <el-table-column sortable align="left" label="知识库" prop="knowledgeId" width="120" />
+        <el-table-column align="left" label="父文章" prop="ptitle" width="120" />
+        <el-table-column sortable align="left" label="知识库" prop="knowledgeName" width="120" />
         <el-table-column sortable align="left" label="重要程度" prop="importanceLevel" width="120">
             <template #default="scope">
             {{ filterDict(scope.row.importanceLevel,import_levelOptions) }}
@@ -117,7 +117,7 @@
             <el-form-item label="知识库:"  prop="knowledgeId" >
               <el-input v-model.number="formData.knowledgeId" :clearable="true" placeholder="请输入知识库" />
             </el-form-item>
-            <el-form-item label="父id:"  prop="pid" >
+            <el-form-item label="父文章:"  prop="pid" >
               <el-input v-model.number="formData.pid" :clearable="true" placeholder="请输入父id" />
             </el-form-item>
             <el-form-item label="标题:"  prop="title" >
@@ -167,9 +167,11 @@
                 <el-descriptions-item label="最后查看时间">
                       {{ formatDate(formData.lastViewedAt) }}
                 </el-descriptions-item>
-                <el-descriptions-item label="内容">
-                        <RichEdit v-model="formData.content"/>
-                </el-descriptions-item>
+        </el-descriptions>
+        <el-descriptions :column="100" border>
+            <el-descriptions-item label="内容" :span="99">
+                    <RichHtml v-model="formData.content"/>
+            </el-descriptions-item>
         </el-descriptions>
     </el-drawer>
   </div>
@@ -186,6 +188,7 @@ import {
 } from '@/api/article/articles'
 // 富文本组件
 import RichEdit from '@/components/richtext/rich-edit.vue'
+import RichHtml from '@/components/richtext/rich-view.vue'
 
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, formatBoolean, filterDict, ReturnArrImg, onDownloadFile } from '@/utils/format'
@@ -202,6 +205,8 @@ const understand_levelOptions = ref([])
 const formData = ref({
         knowledgeId: 0,
         pid: 0,
+        ptitle: '',
+        knowledgeName: '',
         title: '',
         importanceLevel: '',
         understandLevel: '',
