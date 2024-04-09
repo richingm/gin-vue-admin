@@ -68,8 +68,8 @@ func (articlesApi *ArticlesApi) DeleteArticles(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"批量删除成功"}"
 // @Router /articles/deleteArticlesByIds [delete]
 func (articlesApi *ArticlesApi) DeleteArticlesByIds(c *gin.Context) {
-	IDs := c.QueryArray("IDs[]")
-	if err := articlesService.DeleteArticlesByIds(IDs); err != nil {
+	ids := c.QueryArray("ids[]")
+	if err := articlesService.DeleteArticlesByIds(ids); err != nil {
 		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
 		response.FailWithMessage("批量删除失败", c)
 	} else {
