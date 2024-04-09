@@ -51,18 +51,14 @@
         style="width: 100%"
         tooltip-effect="dark"
         :data="tableData"
-        row-key="ID"
+        row-key="id"
         @selection-change="handleSelectionChange"
         @sort-change="sortChange"
         >
         <el-table-column type="selection" width="55" />
-        
-        <el-table-column align="left" label="日期" width="180">
-            <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
-        </el-table-column>
-        <el-table-column align="left" label="ID" prop="id" width="120" />
+        <el-table-column align="left" label="id" prop="id" width="120" />
         <el-table-column align="left" label="标题" prop="title" width="120" />
-        <el-table-column sortable align="left" label="上级文章" prop="pid" width="120" />
+        <el-table-column align="left" label="上级文章" prop="pid" width="120" />
         <el-table-column sortable align="left" label="知识库" prop="knowledgeId" width="120" />
         <el-table-column sortable align="left" label="重要程度" prop="importanceLevel" width="120">
             <template #default="scope">
@@ -74,7 +70,13 @@
             {{ filterDict(scope.row.understandLevel,understand_levelOptions) }}
             </template>
         </el-table-column>
-         <el-table-column sortable align="left" label="最后查看时间" width="180">
+        <el-table-column align="left" label="创建日期" width="180">
+            <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
+        </el-table-column>
+        <el-table-column align="left" label="更新日期" width="180">
+             <template #default="scope">{{ formatDate(scope.row.UpdatedAt) }}</template>
+        </el-table-column>
+        <el-table-column sortable align="left" label="最近浏览" width="180">
             <template #default="scope">{{ formatDate(scope.row.lastViewedAt) }}</template>
          </el-table-column>
         <el-table-column align="left" label="操作" fixed="right" min-width="240">
@@ -380,7 +382,7 @@ const onDelete = async() => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async() => {
-      const IDs = []
+      const ids = []
       if (multipleSelection.value.length === 0) {
         ElMessage({
           type: 'warning',
@@ -390,15 +392,15 @@ const onDelete = async() => {
       }
       multipleSelection.value &&
         multipleSelection.value.map(item => {
-          IDs.push(item.ID)
+          ids.push(item.id)
         })
-      const res = await deleteArticlesByIds({ IDs })
+      const res = await deleteArticlesByIds({ ids })
       if (res.code === 0) {
         ElMessage({
           type: 'success',
           message: '删除成功'
         })
-        if (tableData.value.length === IDs.length && page.value > 1) {
+        if (tableData.value.length === ids.length && page.value > 1) {
           page.value--
         }
         getTableData()
@@ -411,7 +413,7 @@ const type = ref('')
 
 // 更新行
 const updateArticlesFunc = async(row) => {
-    const res = await findArticles({ ID: row.ID })
+    const res = await findArticles({ id: row.ID })
     type.value = 'update'
     if (res.code === 0) {
         formData.value = res.data.rearticles
@@ -422,7 +424,7 @@ const updateArticlesFunc = async(row) => {
 
 // 删除行
 const deleteArticlesFunc = async (row) => {
-    const res = await deleteArticles({ ID: row.ID })
+    const res = await deleteArticles({ id: row.ID })
     if (res.code === 0) {
         ElMessage({
                 type: 'success',
@@ -452,7 +454,7 @@ const openDetailShow = () => {
 // 打开详情
 const getDetails = async (row) => {
   // 打开弹窗
-  const res = await findArticles({ ID: row.ID })
+  const res = await findArticles({ id: row.id })
   if (res.code === 0) {
     formData.value = res.data.rearticles
     openDetailShow()

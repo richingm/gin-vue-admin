@@ -50,7 +50,7 @@ func (articlesApi *ArticlesApi) CreateArticles(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"删除成功"}"
 // @Router /articles/deleteArticles [delete]
 func (articlesApi *ArticlesApi) DeleteArticles(c *gin.Context) {
-	ID := c.Query("ID")
+	ID := c.Query("id")
 	if err := articlesService.DeleteArticles(ID); err != nil {
 		global.GVA_LOG.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
@@ -112,7 +112,7 @@ func (articlesApi *ArticlesApi) UpdateArticles(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"查询成功"}"
 // @Router /articles/findArticles [get]
 func (articlesApi *ArticlesApi) FindArticles(c *gin.Context) {
-	ID := c.Query("ID")
+	ID := c.Query("id")
 	if rearticles, err := articlesService.GetArticles(ID); err != nil {
 		global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
