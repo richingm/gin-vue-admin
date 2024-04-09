@@ -3,7 +3,6 @@
     <div class="gva-search-box">
       <el-form ref="elSearchFormRef" :inline="true" :model="searchInfo" class="demo-form-inline" :rules="searchRule" @keyup.enter="onSubmit">
         <el-form-item label="创建时间" prop="createdAt">
-            
             <template #label>
             <span>
               创建时间
@@ -24,7 +23,6 @@
             </el-form-item>
         <el-form-item label="知识库名称" prop="name">
          <el-input v-model="searchInfo.name" placeholder="搜索条件" />
-
         </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="search" @click="onSubmit">查询</el-button>
@@ -47,25 +45,17 @@
         @sort-change="sortChange"
         >
         <el-table-column type="selection" width="55" />
-        
-         <el-table-column align="left" label="创建时间" width="180">
-            <template #default="scope">{{ formatDate(scope.row.createdAt) }}</template>
-         </el-table-column>
-         <el-table-column align="left" label="删除时间" width="180">
-            <template #default="scope">{{ formatDate(scope.row.deletedAt) }}</template>
-         </el-table-column>
         <el-table-column align="left" label="ID" prop="id" width="120" />
+        <el-table-column align="left" label="知识库名称" prop="name" width="120" />
         <el-table-column align="left" label="重要程度" prop="importLevel" width="120">
             <template #default="scope">
             {{ filterDict(scope.row.importLevel,import_levelOptions) }}
             </template>
         </el-table-column>
-        <el-table-column align="left" label="知识库名称" prop="name" width="120" />
-        <el-table-column align="left" label="备注" prop="notes" width="120" />
-        <el-table-column align="left" label="父知识库" prop="pid" width="120" />
-         <el-table-column sortable align="left" label="更新时间" width="180">
-            <template #default="scope">{{ formatDate(scope.row.updatedAt) }}</template>
+         <el-table-column align="left" label="创建时间" width="180">
+            <template #default="scope">{{ formatDate(scope.row.createdAt) }}</template>
          </el-table-column>
+        <el-table-column align="left" label="备注" prop="notes" width="120" />
         <el-table-column align="left" label="操作" fixed="right" min-width="240">
             <template #default="scope">
             <el-button type="primary" link class="table-button" @click="getDetails(scope.row)">
@@ -101,31 +91,22 @@
             </template>
 
           <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
-            <el-form-item label="创建时间:"  prop="createdAt" >
-              <el-date-picker v-model="formData.createdAt" type="date" style="width:100%" placeholder="选择日期" :clearable="true"  />
-            </el-form-item>
-            <el-form-item label="删除时间:"  prop="deletedAt" >
-              <el-date-picker v-model="formData.deletedAt" type="date" style="width:100%" placeholder="选择日期" :clearable="true"  />
-            </el-form-item>
-            <el-form-item label="ID:"  prop="id" >
-              <el-input v-model.number="formData.id" :clearable="true" placeholder="请输入ID" />
-            </el-form-item>
-            <el-form-item label="重要程度:"  prop="importLevel" >
-              <el-select v-model="formData.importLevel" placeholder="请选择重要程度" style="width:100%" :clearable="true" >
-                <el-option v-for="(item,key) in import_levelOptions" :key="key" :label="item.label" :value="item.value" />
-              </el-select>
+            <el-form-item v-if="show" label="ID:" prop="id">
+                  <el-input v-model.number="formData.id" :clearable="true" :disabled="!isEdit" placeholder="请输入ID" />
             </el-form-item>
             <el-form-item label="知识库名称:"  prop="name" >
               <el-input v-model="formData.name" :clearable="true"  placeholder="请输入知识库名称" />
             </el-form-item>
+                        <el-form-item label="父知识库:"  prop="pid" >
+                          <el-input v-model.number="formData.pid" :clearable="true" placeholder="请输入父知识库" />
+                        </el-form-item>
+            <el-form-item label="重要程度:"  prop="importLevel" >
+                          <el-select v-model="formData.importLevel" placeholder="请选择重要程度" style="width:100%" :clearable="true" >
+                            <el-option v-for="(item,key) in import_levelOptions" :key="key" :label="item.label" :value="item.value" />
+                          </el-select>
+                        </el-form-item>
             <el-form-item label="备注:"  prop="notes" >
               <el-input v-model="formData.notes" :clearable="true"  placeholder="请输入备注" />
-            </el-form-item>
-            <el-form-item label="父知识库:"  prop="pid" >
-              <el-input v-model.number="formData.pid" :clearable="true" placeholder="请输入父知识库" />
-            </el-form-item>
-            <el-form-item label="更新时间:"  prop="updatedAt" >
-              <el-date-picker v-model="formData.updatedAt" type="date" style="width:100%" placeholder="选择日期" :clearable="true"  />
             </el-form-item>
           </el-form>
     </el-drawer>
@@ -137,29 +118,26 @@
              </div>
          </template>
         <el-descriptions :column="1" border>
-                <el-descriptions-item label="创建时间">
-                      {{ formatDate(formData.createdAt) }}
-                </el-descriptions-item>
-                <el-descriptions-item label="删除时间">
-                      {{ formatDate(formData.deletedAt) }}
-                </el-descriptions-item>
                 <el-descriptions-item label="ID">
                         {{ formData.id }}
-                </el-descriptions-item>
-                <el-descriptions-item label="重要程度">
-                        {{ filterDict(formData.importLevel,import_levelOptions) }}
                 </el-descriptions-item>
                 <el-descriptions-item label="知识库名称">
                         {{ formData.name }}
                 </el-descriptions-item>
-                <el-descriptions-item label="备注">
-                        {{ formData.notes }}
-                </el-descriptions-item>
                 <el-descriptions-item label="父知识库">
                         {{ formData.pid }}
                 </el-descriptions-item>
+                <el-descriptions-item label="重要程度">
+                        {{ filterDict(formData.importLevel,import_levelOptions) }}
+                </el-descriptions-item>
+                <el-descriptions-item label="创建时间">
+                      {{ formatDate(formData.createdAt) }}
+                </el-descriptions-item>
                 <el-descriptions-item label="更新时间">
                       {{ formatDate(formData.updatedAt) }}
+                </el-descriptions-item>
+                <el-descriptions-item label="备注">
+                        {{ formData.notes }}
                 </el-descriptions-item>
         </el-descriptions>
     </el-drawer>
@@ -261,6 +239,7 @@ const total = ref(0)
 const pageSize = ref(10)
 const tableData = ref([])
 const searchInfo = ref({})
+
 // 排序
 const sortChange = ({ prop, order }) => {
   const sortMap = {
@@ -382,11 +361,13 @@ const onDelete = async() => {
 
 // 行为控制标记（弹窗内部需要增还是改）
 const type = ref('')
+const show = ref()
 
 // 更新行
 const updateKnowledgesFunc = async(row) => {
     const res = await findKnowledges({ id: row.id })
     type.value = 'update'
+    show.value = true
     if (res.code === 0) {
         formData.value = res.data.reknowledges
         dialogFormVisible.value = true
@@ -453,6 +434,7 @@ const closeDetailShow = () => {
 // 打开弹窗
 const openDialog = () => {
     type.value = 'create'
+    show.value = false
     dialogFormVisible.value = true
 }
 
