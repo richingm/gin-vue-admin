@@ -43,7 +43,7 @@
     </div>
     <div class="gva-table-box">
         <div class="gva-btn-list">
-            <el-button type="primary" icon="plus" @click="openDialog">新增</el-button>
+            <el-button type="primary" icon="plus" @click="addChild(0)">新增</el-button>
             <el-button icon="delete" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="onDelete">删除</el-button>
         </div>
         <el-table
@@ -81,10 +81,16 @@
          </el-table-column>
         <el-table-column align="left" label="操作" fixed="right" min-width="240">
             <template #default="scope">
+            <el-button
+                          type="primary"
+                          link
+                          icon="plus"
+                          @click="addChild(scope.row.id)"
+                        >添加子文章</el-button>
             <el-button type="primary" link class="table-button" @click="getDetails(scope.row)">
-                <el-icon style="margin-right: 5px"><InfoFilled /></el-icon>
-                查看详情
-            </el-button>
+                            <el-icon style="margin-right: 5px"><InfoFilled /></el-icon>
+                            查看详情
+                        </el-button>
             <el-button type="primary" link icon="edit" class="table-button" @click="updateArticlesFunc(scope.row)">变更</el-button>
             <el-button type="primary" link icon="delete" @click="deleteRow(scope.row)">删除</el-button>
             </template>
@@ -479,6 +485,11 @@ const closeDetailShow = () => {
           }
 }
 
+const addChild = (id) => {
+  type.value = 'create'
+  formData.value.pid = id
+  dialogFormVisible.value = true
+}
 
 // 打开弹窗
 const openDialog = () => {
