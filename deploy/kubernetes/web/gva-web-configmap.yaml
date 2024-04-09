@@ -5,7 +5,7 @@ metadata:
 data:
   my.conf: |
     server {
-        listen       8080;
+        listen       8081;
         server_name localhost;
 
         #charset koi8-r;

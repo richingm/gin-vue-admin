@@ -20,7 +20,7 @@ services:
     hostname: gva-web           #可以通过容器名访问
     restart: always
     ports:
-      - '8080:8080'
+      - '8081:8081'
     depends_on:
       - server
     working_dir: /web       # 如果docker 设置了workdir 则此处不需要设置
