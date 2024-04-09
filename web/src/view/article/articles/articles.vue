@@ -60,10 +60,10 @@
         <el-table-column align="left" label="日期" width="180">
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        
-        <el-table-column sortable align="left" label="知识库" prop="knowledgeId" width="120" />
-        <el-table-column sortable align="left" label="父id" prop="pid" width="120" />
+        <el-table-column align="left" label="ID" prop="id" width="120" />
         <el-table-column align="left" label="标题" prop="title" width="120" />
+        <el-table-column sortable align="left" label="上级文章" prop="pid" width="120" />
+        <el-table-column sortable align="left" label="知识库" prop="knowledgeId" width="120" />
         <el-table-column sortable align="left" label="重要程度" prop="importanceLevel" width="120">
             <template #default="scope">
             {{ filterDict(scope.row.importanceLevel,import_levelOptions) }}
@@ -77,11 +77,6 @@
          <el-table-column sortable align="left" label="最后查看时间" width="180">
             <template #default="scope">{{ formatDate(scope.row.lastViewedAt) }}</template>
          </el-table-column>
-                      <el-table-column label="内容" width="200">
-                         <template #default="scope">
-                            [富文本内容]
-                         </template>
-                      </el-table-column>
         <el-table-column align="left" label="操作" fixed="right" min-width="240">
             <template #default="scope">
             <el-button type="primary" link class="table-button" @click="getDetails(scope.row)">
@@ -105,7 +100,7 @@
             />
         </div>
     </div>
-    <el-drawer size="800" v-model="dialogFormVisible" :show-close="false" :before-close="closeDialog">
+    <el-drawer size="1500" v-model="dialogFormVisible" :show-close="false" :before-close="closeDialog">
        <template #title>
               <div class="flex justify-between items-center">
                 <span class="text-lg">{{type==='create'?'添加':'修改'}}</span>
@@ -145,7 +140,7 @@
           </el-form>
     </el-drawer>
 
-    <el-drawer size="800" v-model="detailShow" :before-close="closeDetailShow" title="查看详情" destroy-on-close>
+    <el-drawer size="1500" v-model="detailShow" :before-close="closeDetailShow" title="查看详情" destroy-on-close>
           <template #title>
              <div class="flex justify-between items-center">
                <span class="text-lg">查看详情</span>
@@ -171,7 +166,7 @@
                       {{ formatDate(formData.lastViewedAt) }}
                 </el-descriptions-item>
                 <el-descriptions-item label="内容">
-                        [富文本内容]
+                        <RichEdit v-model="formData.content"/>
                 </el-descriptions-item>
         </el-descriptions>
     </el-drawer>
