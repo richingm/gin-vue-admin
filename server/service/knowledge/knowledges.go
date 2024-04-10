@@ -70,6 +70,43 @@ func (knowledgesService *KnowledgesService) GetKnowledgesByIds(ids []int) (knowl
 	return
 }
 
+// loadChildren recursively loads child options for a given knowledge option.
+func (knowledgesService *KnowledgesService) loadChildren(option *knowledge.KnowledgesOption) error {
+	children := []knowledge.KnowledgesOption{}
+	err := global.GVA_DB.Where("pid = ?", option.Id).Find(&children).Error
+	if err != nil {
+		return err
+	}
+
+	for i := range children {
+		err := knowledgesService.loadChildren(&children[i])
+		if err != nil {
+			return err
+		}
+	}
+
+	option.Child = children
+	return nil
+}
+
+// GetKnowledgesOptions retrieves all the KnowledgesOption records from the database.
+func (knowledgesService *KnowledgesService) GetKnowledgesOptions() ([]knowledge.KnowledgesOption, error) {
+	var topKnowledges []knowledge.KnowledgesOption
+	err := global.GVA_DB.Where("pid = 0").Find(&topKnowledges).Error // Assuming top-level knowledge options have a nil `pid`
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range topKnowledges {
+		err := knowledgesService.loadChildren(&topKnowledges[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return topKnowledges, nil
+}
+
 // GetKnowledgesInfoList 分页获取knowledges表记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (knowledgesService *KnowledgesService) GetKnowledgesInfoList(info knowledgeReq.KnowledgesSearch) (list []knowledge.Knowledges, total int64, err error) {

@@ -154,3 +154,19 @@ func (knowledgesApi *KnowledgesApi) GetKnowledgesList(c *gin.Context) {
 		}, "获取成功", c)
 	}
 }
+
+// @Tags Knowledges
+// @Summary 获取knowledges options
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
+// @Router /knowledges/getKnowledgesOptions [get]
+func (knowledgesApi *KnowledgesApi) GetKnowledgesOptions(c *gin.Context) {
+	if knowledges, err := knowledgesService.GetKnowledgesOptions(); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithData(gin.H{"knowledges": knowledges}, c)
+	}
+}

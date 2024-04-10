@@ -97,9 +97,6 @@
             <el-form-item label="知识库名称:"  prop="name" >
               <el-input v-model="formData.name" :clearable="true"  placeholder="请输入知识库名称" />
             </el-form-item>
-                        <el-form-item label="父知识库:"  prop="pid" >
-                          <el-input v-model.number="formData.pid" :clearable="true" placeholder="请输入父知识库" />
-                        </el-form-item>
             <el-form-item label="重要程度:"  prop="importLevel" >
                           <el-select v-model="formData.importLevel" placeholder="请选择重要程度" style="width:100%" :clearable="true" >
                             <el-option v-for="(item,key) in import_levelOptions" :key="key" :label="item.label" :value="item.value" />
@@ -123,9 +120,6 @@
                 </el-descriptions-item>
                 <el-descriptions-item label="知识库名称">
                         {{ formData.name }}
-                </el-descriptions-item>
-                <el-descriptions-item label="父知识库">
-                        {{ formData.pid }}
                 </el-descriptions-item>
                 <el-descriptions-item label="重要程度">
                         {{ filterDict(formData.importLevel,import_levelOptions) }}

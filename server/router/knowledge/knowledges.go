@@ -21,7 +21,8 @@ func (s *KnowledgesRouter) InitKnowledgesRouter(Router *gin.RouterGroup) {
 		knowledgesRouter.PUT("updateKnowledges", knowledgesApi.UpdateKnowledges)              // 更新knowledges表
 	}
 	{
-		knowledgesRouterWithoutRecord.GET("findKnowledges", knowledgesApi.FindKnowledges)       // 根据ID获取knowledges表
-		knowledgesRouterWithoutRecord.GET("getKnowledgesList", knowledgesApi.GetKnowledgesList) // 获取knowledges表列表
+		knowledgesRouterWithoutRecord.GET("findKnowledges", knowledgesApi.FindKnowledges)             // 根据ID获取knowledges表
+		knowledgesRouterWithoutRecord.GET("getKnowledgesList", knowledgesApi.GetKnowledgesList)       // 获取knowledges表列表
+		knowledgesRouterWithoutRecord.GET("getKnowledgesOptions", knowledgesApi.GetKnowledgesOptions) // 获取knowledgeoptions
 	}
 }

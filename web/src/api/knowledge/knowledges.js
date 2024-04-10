@@ -95,3 +95,18 @@ export const getKnowledgesList = (params) => {
     params
   })
 }
+
+// @Tags Knowledges
+// @Summary 获取knowledgesOptions
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
+// @Router /knowledges/getKnowledgesOptions [get]
+export const getKnowledgesOptions = (params) => {
+  return service({
+    url: '/knowledges/getKnowledgesOptions',
+    method: 'get',
+    params
+  })
+}
