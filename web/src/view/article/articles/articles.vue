@@ -120,8 +120,17 @@
             </template>
 
           <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
-            <el-form-item label="知识库:"  prop="knowledgeId" >
-              <el-input v-model.number="formData.knowledgeId" :clearable="true" placeholder="请输入知识库" />
+
+            <el-form-item label="知识库" style="width:100%">
+              <el-cascader
+                v-model.number="formData.knowledgeId"
+                style="width:100%"
+                :disabled="!isEdit"
+                :options="knowledgeOption"
+                :props="{ checkStrictly: true, label: 'name', value: 'id', emitPath: true }"
+                :show-all-levels="false"
+                filterable
+              />
             </el-form-item>
             <el-form-item label="父文章:"  prop="pid" >
               <el-input v-model.number="formData.pid" :clearable="true" placeholder="请输入父id" />
@@ -192,6 +201,11 @@ import {
   findArticles,
   getArticlesList
 } from '@/api/article/articles'
+
+import {
+  getKnowledgesOptions
+} from '@/api/knowledge/knowledges'
+
 // 富文本组件
 import RichEdit from '@/components/richtext/rich-edit.vue'
 import RichHtml from '@/components/richtext/rich-view.vue'
@@ -204,6 +218,8 @@ import { ref, reactive } from 'vue'
 defineOptions({
     name: 'Articles'
 })
+
+const isEdit = ref(false)
 
 // 自动化生成的字典（可能为空）以及字段
 const import_levelOptions = ref([])
@@ -358,14 +374,34 @@ getTableData()
 
 // ============== 表格控制部分结束 ===============
 
+const knowledgeOption = ref([])
+
 // 获取需要的字典 可能为空 按需保留
 const setOptions = async () =>{
     import_levelOptions.value = await getDictFunc('import_level')
     understand_levelOptions.value = await getDictFunc('understand_level')
+    knowledgeOption.value = []
+    setKnowledgeOptions(knowledgeOption.value, false)
 }
 
 // 获取需要的字典 可能为空 按需保留
 setOptions()
+
+
+const setKnowledgeOptions = async (optionsData, disabled) => {
+  const knowledgeData = await getKnowledgesOptions({})
+  if (knowledgeData.data.knowledges) {
+    knowledgeData.data.knowledges.forEach(item => {
+        console.log(formData)
+      const option = {
+        name: item.name,
+        id: item.id,
+        disabled: disabled || item.id === formData.value.knowledgeId
+      }
+      optionsData.push(option)
+    });
+  }
+}
 
 
 // 多选数据
@@ -426,8 +462,10 @@ const type = ref('')
 const updateArticlesFunc = async(row) => {
     const res = await findArticles({ id: row.id })
     type.value = 'update'
+    isEdit.value = true
     if (res.code === 0) {
         formData.value = res.data.rearticles
+        setOptions()
         dialogFormVisible.value = true
     }
 }

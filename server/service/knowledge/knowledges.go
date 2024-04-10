@@ -73,7 +73,7 @@ func (knowledgesService *KnowledgesService) GetKnowledgesByIds(ids []int) (knowl
 // loadChildren recursively loads child options for a given knowledge option.
 func (knowledgesService *KnowledgesService) loadChildren(option *knowledge.KnowledgesOption) error {
 	children := []knowledge.KnowledgesOption{}
-	err := global.GVA_DB.Where("pid = ?", option.Id).Find(&children).Error
+	err := global.GVA_DB.Model(&knowledge.Knowledges{}).Where("pid = ?", option.Id).Find(&children).Error
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (knowledgesService *KnowledgesService) loadChildren(option *knowledge.Knowl
 // GetKnowledgesOptions retrieves all the KnowledgesOption records from the database.
 func (knowledgesService *KnowledgesService) GetKnowledgesOptions() ([]knowledge.KnowledgesOption, error) {
 	var topKnowledges []knowledge.KnowledgesOption
-	err := global.GVA_DB.Where("pid = 0").Find(&topKnowledges).Error // Assuming top-level knowledge options have a nil `pid`
+	err := global.GVA_DB.Model(&knowledge.Knowledges{}).Where("pid = 0").Find(&topKnowledges).Error // Assuming top-level knowledge options have a nil `pid`
 	if err != nil {
 		return nil, err
 	}
