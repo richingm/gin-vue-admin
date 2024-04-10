@@ -118,10 +118,11 @@
                 </div>
               </div>
             </template>
-
-          <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
-
-            <el-form-item label="知识库" style="width:100%">
+          <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px" :inline="true">
+            <el-form-item label="标题:"  prop="title" style="width:100%">
+              <el-input v-model="formData.title" :clearable="true"  placeholder="请输入标题" />
+            </el-form-item>
+            <el-form-item label="知识库" style="width:20%">
               <el-cascader
                 v-model.number="formData.knowledgeId"
                 style="width:100%"
@@ -132,27 +133,21 @@
                 filterable
               />
             </el-form-item>
-            <el-form-item label="父文章:"  prop="pid" >
+            <el-form-item label="父文章:"  prop="pid" style="width:20%">
               <el-input v-model.number="formData.pid" :clearable="true" placeholder="请输入父id" />
             </el-form-item>
-            <el-form-item label="标题:"  prop="title" >
-              <el-input v-model="formData.title" :clearable="true"  placeholder="请输入标题" />
-            </el-form-item>
-            <el-form-item label="重要程度:"  prop="importanceLevel" >
+            <el-form-item label="重要程度:"  prop="importanceLevel" style="width:20%">
               <el-select v-model="formData.importanceLevel" placeholder="请选择重要程度" style="width:100%" :clearable="true" >
                 <el-option v-for="(item,key) in import_levelOptions" :key="key" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
-            <el-form-item label="理解程度:"  prop="understandLevel" >
+            <el-form-item label="理解程度:"  prop="understandLevel" style="width:20%">
               <el-select v-model="formData.understandLevel" placeholder="请选择理解程度" style="width:100%" :clearable="true" >
                 <el-option v-for="(item,key) in understand_levelOptions" :key="key" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
-            <el-form-item label="最后查看时间:"  prop="lastViewedAt" >
-              <el-date-picker v-model="formData.lastViewedAt" type="date" style="width:100%" placeholder="选择日期" :clearable="true"  />
-            </el-form-item>
             <el-form-item label="内容:"  prop="content" >
-              <RichEdit v-model="formData.content"/>
+              <RichEdit v-model="formData.content" style="width:100%;high:100%"/>
             </el-form-item>
           </el-form>
     </el-drawer>
