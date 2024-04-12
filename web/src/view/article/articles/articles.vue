@@ -43,7 +43,7 @@
     </div>
     <div class="gva-table-box">
         <div class="gva-btn-list">
-            <el-button type="primary" icon="plus" @click="addChild(0)">新增</el-button>
+            <el-button type="primary" icon="plus" @click="addChild(0, 0, true)">新增</el-button>
             <el-button icon="delete" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="onDelete">删除</el-button>
         </div>
         <el-table
@@ -85,11 +85,11 @@
                           type="primary"
                           link
                           icon="plus"
-                          @click="addChild(scope.row.id)"
+                          @click="addChild(scope.row.id, scope.row.title, scope.row.knowledgeId, false)"
                         >添加子文章</el-button>
             <el-button type="primary" link class="table-button" @click="getDetails(scope.row)">
                             <el-icon style="margin-right: 5px"><InfoFilled /></el-icon>
-                            查看详情
+                            查看内容
                         </el-button>
             <el-button type="primary" link icon="edit" class="table-button" @click="updateArticlesFunc(scope.row)">变更</el-button>
             <el-button type="primary" link icon="delete" @click="deleteRow(scope.row)">删除</el-button>
@@ -126,16 +126,24 @@
               <el-cascader
                 v-model.number="formData.knowledgeId"
                 style="width:100%"
-                :disabled="!isEdit"
+                :disabled="!isEdit2"
                 :options="knowledgeOption"
-                :props="{ checkStrictly: true, label: 'name', value: 'id', emitPath: true }"
+                :props="{ checkStrictly: true, label: 'name', value: 'id', emitPath: false }"
                 :show-all-levels="false"
                 filterable
               />
             </el-form-item>
-            <el-form-item label="父文章:"  prop="pid" style="width:20%">
-              <el-input v-model.number="formData.pid" :clearable="true" placeholder="请输入父id" />
-            </el-form-item>
+            <el-form-item label="父文章" style="width:20%">
+                          <el-cascader
+                            v-model.number="formData.pid"
+                            style="width:100%"
+                            :disabled="!isEdit"
+                            :options="parentArticleOption"
+                            :props="{ checkStrictly: true, label: 'name', value: 'id', emitPath: false }"
+                            :show-all-levels="false"
+                            filterable
+                          />
+                        </el-form-item>
             <el-form-item label="重要程度:"  prop="importanceLevel" style="width:20%">
               <el-select v-model="formData.importanceLevel" placeholder="请选择重要程度" style="width:100%" :clearable="true" >
                 <el-option v-for="(item,key) in import_levelOptions" :key="key" :label="item.label" :value="item.value" />
@@ -147,42 +155,18 @@
               </el-select>
             </el-form-item>
             <el-form-item label="内容:"  prop="content" >
-              <RichEdit v-model="formData.content" style="width:100%;high:100%"/>
+              <RichEdit v-model="formData.content"/>
             </el-form-item>
           </el-form>
     </el-drawer>
 
-    <el-drawer size="1500" v-model="detailShow" :before-close="closeDetailShow" title="查看详情" destroy-on-close>
+    <el-drawer size="1500" v-model="detailShow" :before-close="closeDetailShow" title="查看内容" destroy-on-close>
           <template #title>
              <div class="flex justify-between items-center">
-               <span class="text-lg">查看详情</span>
+               <span class="text-lg">查看内容</span>
              </div>
          </template>
-        <el-descriptions :column="1" border>
-                <el-descriptions-item label="知识库">
-                        {{ formData.knowledgeId }}
-                </el-descriptions-item>
-                <el-descriptions-item label="父id">
-                        {{ formData.pid }}
-                </el-descriptions-item>
-                <el-descriptions-item label="标题">
-                        {{ formData.title }}
-                </el-descriptions-item>
-                <el-descriptions-item label="重要程度">
-                        {{ filterDict(formData.importanceLevel,import_levelOptions) }}
-                </el-descriptions-item>
-                <el-descriptions-item label="理解程度">
-                        {{ filterDict(formData.understandLevel,understand_levelOptions) }}
-                </el-descriptions-item>
-                <el-descriptions-item label="最后查看时间">
-                      {{ formatDate(formData.lastViewedAt) }}
-                </el-descriptions-item>
-        </el-descriptions>
-        <el-descriptions :column="100" border>
-            <el-descriptions-item label="内容" :span="99">
-                    <RichHtml v-model="formData.content"/>
-            </el-descriptions-item>
-        </el-descriptions>
+         <RichHtml v-model="formData.content"/>
     </el-drawer>
   </div>
 </template>
@@ -201,20 +185,22 @@ import {
   getKnowledgesOptions
 } from '@/api/knowledge/knowledges'
 
-// 富文本组件
-import RichEdit from '@/components/richtext/rich-edit.vue'
-import RichHtml from '@/components/richtext/rich-view.vue'
 
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, formatBoolean, filterDict, ReturnArrImg, onDownloadFile } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive } from 'vue'
 
+// 富文本组件
+import RichEdit from '@/components/richtext/rich-edit.vue'
+import RichHtml from '@/components/richtext/rich-view.vue'
+
 defineOptions({
     name: 'Articles'
 })
 
 const isEdit = ref(false)
+const isEdit2 = ref(false)
 
 // 自动化生成的字典（可能为空）以及字段
 const import_levelOptions = ref([])
@@ -370,6 +356,12 @@ getTableData()
 // ============== 表格控制部分结束 ===============
 
 const knowledgeOption = ref([])
+const parentArticleOption = ref([
+  {
+    id: 0,
+    name: '根文章'
+  }
+])
 
 // 获取需要的字典 可能为空 按需保留
 const setOptions = async () =>{
@@ -377,17 +369,34 @@ const setOptions = async () =>{
     understand_levelOptions.value = await getDictFunc('understand_level')
     knowledgeOption.value = []
     setKnowledgeOptions(knowledgeOption.value, false)
+
+    parentArticleOption.value = [
+        {
+          id: 0,
+          name: '根文章'
+        }
+      ]
+    setParentArticleOption(parentArticleOption.value, 0, '', false)
 }
 
 // 获取需要的字典 可能为空 按需保留
 setOptions()
 
+const setParentArticleOption = (optionsData, id, name, disabled) => {
+        if (id > 0 ) {
+            const option = {
+                    name: name,
+                    id: id,
+                    disabled: disabled || id === formData.value.pid
+                  }
+            optionsData.push(option)
+        }
+}
 
 const setKnowledgeOptions = async (optionsData, disabled) => {
   const knowledgeData = await getKnowledgesOptions({})
   if (knowledgeData.data.knowledges) {
     knowledgeData.data.knowledges.forEach(item => {
-        console.log(formData)
       const option = {
         name: item.name,
         id: item.id,
@@ -518,9 +527,17 @@ const closeDetailShow = () => {
           }
 }
 
-const addChild = (id) => {
+const addChild = (id, name, knowledgeId, flag) => {
   type.value = 'create'
   formData.value.pid = id
+  formData.value.knowledgeId = knowledgeId
+  setParentArticleOption(parentArticleOption.value, id, name, false)
+  isEdit.value = flag
+  if (id == 0) {
+    isEdit2.value = true
+  } else {
+    isEdit2.value = false
+  }
   dialogFormVisible.value = true
 }
 
