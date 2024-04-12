@@ -7,6 +7,7 @@ import (
 	knowledge2 "github.com/flipped-aurora/gin-vue-admin/server/model/knowledge"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/knowledge"
 	"github.com/samber/lo"
+	"gorm.io/gorm"
 )
 
 type ArticlesService struct {
@@ -109,7 +110,9 @@ func (articlesService *ArticlesService) GetArticlesInfoList(info articleReq.Arti
 	// 获取父id文章
 	articlesList, err := articlesService.GetArticlesByIds(pids)
 	if err != nil {
-		return nil, 0, err
+		if err != gorm.ErrRecordNotFound {
+			return articless, total, err
+		}
 	}
 	articlesMap := lo.KeyBy(articlesList, func(item article.Articles) int {
 		return int(item.ID)

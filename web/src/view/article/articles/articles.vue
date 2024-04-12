@@ -15,12 +15,17 @@
        —
       <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束日期" :disabled-date="time=> searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
       </el-form-item>
-      
-        <el-form-item label="知识库" prop="knowledgeId">
-            
-             <el-input v-model.number="searchInfo.knowledgeId" placeholder="搜索条件" />
-
-        </el-form-item>
+        <el-form-item label="知识库" style="width:20%" prop="knowledgeId">
+                      <el-cascader
+                        v-model.number="searchInfo.knowledgeId"
+                        style="width:100%"
+                        :disabled="false"
+                        :options="knowledgeOption"
+                        :props="{ checkStrictly: true, label: 'name', value: 'id', emitPath: false }"
+                        :show-all-levels="false"
+                        filterable
+                      />
+                    </el-form-item>
         <el-form-item label="标题" prop="title">
          <el-input v-model="searchInfo.title" placeholder="搜索条件" />
 
