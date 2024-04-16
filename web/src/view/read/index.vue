@@ -1,46 +1,52 @@
 <template>
   <div>
     <el-form :inline="true" :model="searchInfo" class="demo-form-inline" @keyup.enter="onSubmit">
-        <el-form-item label="知识库" style="width:20%" prop="knowledgeId">
+      <el-form-item label="知识库" style="width:20%" prop="knowledgeId">
         <el-cascader
-        v-model.number="searchInfo.knowledgeId"
-        style="width:100%"
-        :disabled="false"
-        :options="knowledgeOption"
-        :props="{ checkStrictly: true, label: 'name', value: 'id', emitPath: false }"
-        :show-all-levels="false"
-        filterable
+          v-model.number="searchInfo.knowledgeId"
+          style="width:100%"
+          :disabled="false"
+          :options="knowledgeOption"
+          :props="{ checkStrictly: true, label: 'name', value: 'id', emitPath: false }"
+          :show-all-levels="false"
+          filterable
         />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" icon="search" @click="onSubmit">查询</el-button>
-        </el-form-item>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="search" @click="onSubmit">查询</el-button>
+      </el-form-item>
     </el-form>
     <div ref="jsMindContainer" style="height: 660px; border: 1px solid #ccc;"></div>
   </div>
 </template>
 
 <script setup>
+import jsMind from 'jsmind'
+import 'jsmind/style/jsmind.css'
+
 import {
   getKnowledgesOptions
 } from '@/api/knowledge/knowledges'
 
-import { ref, reactive } from 'vue'
+import {
+  getArticlesMind
+} from '@/api/article/articles'
 
-const searchInfo = ref({
-        knowledgeId: 0})
+import { ref, reactive, onMounted, nextTick } from 'vue'
+
+const searchInfo = ref({knowledgeId: 0})
 
 const formData = ref({
-        knowledgeId: 0,
-        pid: 0,
-        ptitle: '',
-        knowledgeName: '',
-        title: '',
-        importanceLevel: '',
-        understandLevel: '',
-        lastViewedAt: new Date(),
-        content: '',
-        })
+    knowledgeId: 0,
+    pid: 0,
+    ptitle: '',
+    knowledgeName: '',
+    title: '',
+    importanceLevel: '',
+    understandLevel: '',
+    lastViewedAt: new Date(),
+    content: '',
+});
 
 const knowledgeOption = ref([])
 const parentArticleOption = ref([
@@ -54,7 +60,6 @@ const parentArticleOption = ref([
 const setOptions = async () =>{
     knowledgeOption.value = []
     setKnowledgeOptions(knowledgeOption.value, false)
-
     parentArticleOption.value = [
         {
           id: 0,
@@ -65,14 +70,14 @@ const setOptions = async () =>{
 }
 
 const setParentArticleOption = (optionsData, id, name, disabled) => {
-        if (id > 0 ) {
-            const option = {
-                    name: name,
-                    id: id,
-                    disabled: disabled || id === formData.value.pid
-                  }
-            optionsData.push(option)
-        }
+    if (id > 0 ) {
+        const option = {
+                name: name,
+                id: id,
+                disabled: disabled || id === formData.value.pid
+              }
+        optionsData.push(option)
+    }
 }
 
 const setKnowledgeOptions = async (optionsData, disabled) => {
@@ -89,146 +94,58 @@ const setKnowledgeOptions = async (optionsData, disabled) => {
   }
 }
 
-const jsMindContainer = ref(null);
-    const jm = ref(null);
+const jsMindContainer = ref('jsmind_container');
+const jm = ref(null);
+
+onMounted(() => {
+  nextTick(() => {
+    const options = {
+      container: 'jsMindContainer', // ID of your container element
+      editable: true,
+      theme: 'primary'
+    };
+
+    const mind = ref({
+          "meta": {
+            "name": "demo",
+            "author": "hizzgdev@163.com",
+            "version": "0.2"
+          },
+          "format": "node_tree",
+          "data": {}
+    });
+
+    if (jsMindContainer.value) {
+      jm.value = new jsMind(options);
+      // If you need to load initial data, call `fetchMindData` here
+    } else {
+      console.error('jsMind container not found in DOM');
+    }
+  });
+});
 
 setOptions()
 
+
 const onSubmit = () => {
-    console.log('xxx')
-    const options = {
-            container: jsMindContainer.value,
-                editable: true,
-                theme: 'primary'
-              }
-
-
-          const mind = {
-            "meta": {
-              "name": "demo",
-              "author": "hizzgdev@163.com",
-              "version": "0.2"
-            },
-            "format": "node_tree",
-            "data": {
-                                "id": "root",
-                                "topic": "jsMind",
-                                "children": [
-                                  {
-                                    "id": "easy",
-                                    "topic": "Easy",
-                                    "direction": "left",
-                                    "children": [
-                                      {"id": "easy1", "topic": "Easy to show"},
-                                      {"id": "easy2", "topic": "Easy to edit"},
-                                      // ... other existing children ...
-                                      {
-                                        "id": "easy4",
-                                        "topic": "Easy to embed",
-                                        "children": [
-                                          {
-                                            "id": "level1",
-                                            "topic": "Level 1",
-                                            "children": [
-                                              {
-                                                "id": "level2",
-                                                "topic": "Level 2",
-                                                "children": [
-                                                  {
-                                                    "id": "level3",
-                                                    "topic": "Level 3",
-                                                    "children": [
-                                                      {
-                                                        "id": "level4",
-                                                        "topic": "Level 4",
-                                                        "children": [
-                                                          {
-                                                            "id": "level5",
-                                                            "topic": "Level 5",
-                                                            "children": [
-                                                              {
-                                                                "id": "level6",
-                                                                "topic": "Level 4",
-                                                                "children": [
-                                                                  {
-                                                                    "id": "level7",
-                                                                    "topic": "Level 5",
-                                                                    "children": [
-                                                                          {
-                                                                            "id": "level8",
-                                                                            "topic": "Level 4",
-                                                                            "children": [
-                                                                              {
-                                                                                "id": "level9",
-                                                                                "topic": "Level 5"
-                                                                                // This is the fifth level of nesting
-                                                                              }
-                                                                            ]
-                                                                          }
-                                                                        ]
-                                                                  }
-                                                                ]
-                                                              }
-                                                            ]
-                                                          }
-                                                        ]
-                                                      }
-                                                    ]
-                                                  }
-                                                ]
-                                              }
-                                            ]
-                                          }
-                                        ]
-                                      }
-                                      // ... continue with other nodes as required ...
-                                    ]
-                                  },
-                                  // ... other existing nodes ...
-                                  {
-                                    "id": "other",
-                                    "topic": "test node",
-                                    "direction": "right",
-                                    "children": [
-                                      {
-                                        "id": "easy11",
-                                        "topic": "Easy",
-                                        "direction": "left",
-                                        "children": [
-                                          // Add nested levels here as well if required
-                                        ]
-                                      }
-                                    ]
-                                  }
-                                ]
-                              }
-          }
-
-      if (jm.value) {
-        // If jm already exists, use the existing instance to show the new mind map
-        jm.value.show(mind);
-      } else {
-        // If jm doesn't exist, create a new jsMind instance and show the mind map
-        jm.value = new jsMind(options);
-        jm.value.show(mind);
-      }
+    fetchMindData(searchInfo.value.knowledgeId)
 }
-</script>
-<script>
-import jsMind from 'jsmind'
-import 'jsmind/style/jsmind.css'
 
-export default {
-  name: 'JsMindDemo',
-  mounted() {
-    this.initJsMind()
-  },
-  methods: {
-    initJsMind() {
-
+const fetchMindData = async (id) => {
+  try {
+    console.log(options)
+    const res = await getArticlesMind({ knowledgeId: id });
+    mind.data = res.data;
+    if (jm.value) {
+      jm.value.show(mind);
+    } else {
+      jm.value = new jsMind(options);
+      jm.value.show(mind);
     }
+  } catch (error) {
+    console.error('Failed to fetch articles mind:', error);
   }
-}
+};
 </script>
 
 <style>
