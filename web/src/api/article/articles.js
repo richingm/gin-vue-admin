@@ -95,3 +95,19 @@ export const getArticlesList = (params) => {
     params
   })
 }
+
+// @Tags Articles
+// @Summary 用知识库id查询articles
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data query model.Articles true "用id查询articles表"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"查询成功"}"
+// @Router /articles/getArticlesMind [get]
+export const getArticlesMind = (params) => {
+  return service({
+    url: '/articles/getArticlesMind',
+    method: 'get',
+    params
+  })
+}

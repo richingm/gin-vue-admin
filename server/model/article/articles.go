@@ -14,7 +14,7 @@ type Articles struct {
 	DeletedAt       gorm.DeletedAt `gorm:"index" json:"-"`                                                                                                 // 删除时间
 	KnowledgeId     *int           `json:"knowledgeId" form:"knowledgeId" gorm:"column:knowledge_id;comment:知识库id;size:10;" binding:"required"`            //知识库
 	KnowledgeName   string         `json:"knowledgeName" gorm:"-"`                                                                                         //所属产品
-	Pid             *int           `json:"pid" form:"pid" gorm:"column:pid;comment:父id;size:10;"`                                                          //知识库名称
+	Pid             int            `json:"pid" form:"pid" gorm:"column:pid;comment:父id;size:10;"`                                                          //知识库名称
 	PTitle          string         `json:"ptitle" gorm:"-"`                                                                                                //所属产品
 	Title           string         `json:"title" form:"title" gorm:"column:title;comment:标题;size:255;" binding:"required"`                                 //标题
 	ImportanceLevel string         `json:"importanceLevel" form:"importanceLevel" gorm:"column:importance_level;comment:重要程度;size:50;" binding:"required"` //重要程度

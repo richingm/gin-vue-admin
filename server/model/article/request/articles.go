@@ -17,3 +17,7 @@ type ArticlesSearch struct {
 	Sort  string `json:"sort" form:"sort"`
 	Order string `json:"order" form:"order"`
 }
+
+type ArticlesSearchByKnowledgeId struct {
+	KnowledgeId int `json:"knowledgeId" form:"knowledgeId" `
+}

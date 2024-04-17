@@ -104,7 +104,7 @@ func (articlesService *ArticlesService) GetArticlesInfoList(info articleReq.Arti
 
 	// 获取父id
 	pids := lo.Map(articless, func(item article.Articles, index int) int {
-		return *item.Pid
+		return item.Pid
 	})
 
 	// 获取父id文章
@@ -133,8 +133,8 @@ func (articlesService *ArticlesService) GetArticlesInfoList(info articleReq.Arti
 	})
 
 	articless = lo.Map(articless, func(item article.Articles, index int) article.Articles {
-		if _, ok := articlesMap[*item.Pid]; ok {
-			item.PTitle = articlesMap[*item.Pid].Title
+		if _, ok := articlesMap[item.Pid]; ok {
+			item.PTitle = articlesMap[item.Pid].Title
 		}
 		if _, ok := knowledgeMap[*item.KnowledgeId]; ok {
 			item.KnowledgeName = knowledgeMap[*item.KnowledgeId].Name

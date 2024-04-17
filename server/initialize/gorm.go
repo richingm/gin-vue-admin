@@ -12,6 +12,7 @@ import (
 
 	"github.com/flipped-aurora/gin-vue-admin/server/model/article"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/knowledge"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/workitem_detail"
 )
 
 func Gorm() *gorm.DB {
@@ -54,7 +55,7 @@ func RegisterTables() {
 		example.ExaFile{},
 		example.ExaCustomer{},
 		example.ExaFileChunk{},
-		example.ExaFileUploadAndDownload{}, knowledge.Knowledges{}, article.Articles{},
+		example.ExaFileUploadAndDownload{}, knowledge.Knowledges{}, article.Articles{}, workitem_detail.WorkitemPersonDetail{},
 	)
 	if err != nil {
 		global.GVA_LOG.Error("register table failed", zap.Error(err))

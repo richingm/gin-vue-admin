@@ -21,7 +21,8 @@ func (s *ArticlesRouter) InitArticlesRouter(Router *gin.RouterGroup) {
 		articlesRouter.PUT("updateArticles", articlesApi.UpdateArticles)              // 更新articles表
 	}
 	{
-		articlesRouterWithoutRecord.GET("findArticles", articlesApi.FindArticles)       // 根据ID获取articles表
-		articlesRouterWithoutRecord.GET("getArticlesList", articlesApi.GetArticlesList) // 获取articles表列表
+		articlesRouterWithoutRecord.GET("findArticles", articlesApi.FindArticles)                // 根据ID获取articles表
+		articlesRouterWithoutRecord.GET("getArticlesList", articlesApi.GetArticlesList)          // 获取articles表列表
+		articlesRouterWithoutRecord.GET("getArticlesMind", articlesApi.GetArticlesByKnowledgeId) // 获取article脑图
 	}
 }

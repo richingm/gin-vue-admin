@@ -14,9 +14,10 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="search" @click="onSubmit">查询</el-button>
+        <el-button type="primary" icon="search" @click="show_selected">查看</el-button>
       </el-form-item>
     </el-form>
-    <div ref="jsMindContainer" style="height: 660px; border: 1px solid #ccc;"></div>
+    <div ref="jsMindContainer" id="jsMindContainer" style="height: 660px; border: 1px solid #ccc;"></div>
   </div>
 </template>
 
@@ -94,58 +95,79 @@ const setKnowledgeOptions = async (optionsData, disabled) => {
   }
 }
 
-const jsMindContainer = ref('jsmind_container');
-const jm = ref(null);
-
-onMounted(() => {
-  nextTick(() => {
-    const options = {
-      container: 'jsMindContainer', // ID of your container element
-      editable: true,
-      theme: 'primary'
-    };
-
-    const mind = ref({
-          "meta": {
-            "name": "demo",
-            "author": "hizzgdev@163.com",
-            "version": "0.2"
-          },
-          "format": "node_tree",
-          "data": {}
-    });
-
-    if (jsMindContainer.value) {
-      jm.value = new jsMind(options);
-      // If you need to load initial data, call `fetchMindData` here
-    } else {
-      console.error('jsMind container not found in DOM');
-    }
-  });
-});
-
 setOptions()
 
 
-const onSubmit = () => {
-    fetchMindData(searchInfo.value.knowledgeId)
+const jsMindContainer = ref(null); // Use Vue ref here
+const jm = ref(null);
+const mind = ref({});
+
+const options = {
+  container: 'jsMindContainer', // Make sure this matches the ID in your template
+  editable: true,
+  theme: 'primary',
+  default_event_handle: {
+      enable_mousedown_handle: true
+    },
+    event_handle: {
+      click_element_handle: (el) => handleNodeClick(el)
+    }
+};
+
+const show_selected = () => {
+  console.log(jm)
+    var selected_node = jm.get_selected_node();
+    if (!!selected_node) {
+        console.log(selected_node.topic)
+    } else {
+        console.log('nothing');
+    }
+}
+
+
+const handleNodeClick = (el) => {
+    console.log('xxxxxx')
+  const nodeId = el.getAttribute('id');
+  console.log(nodeId)
+};
+
+
+onMounted(() => {
+  nextTick(() => {
+    if (jsMindContainer.value) {
+      jm.value = new jsMind(options);
+    } else {
+      console.error('jsMind container not found in DOM');
+    }    
+  });
+});
+
+
+const onSubmit = async () => {
+  await fetchMindData(searchInfo.value.knowledgeId);
+}
+
+const selectedNodeId = ref(null); // 用于存储选中节点的 ID
+
+const onShow = async () => {
+  const node = jm.value.selected_node()
+  console.log(node)
 }
 
 const fetchMindData = async (id) => {
   try {
-    console.log(options)
     const res = await getArticlesMind({ knowledgeId: id });
-    mind.data = res.data;
     if (jm.value) {
-      jm.value.show(mind);
+      jm.value.show( res.data.rearticles);
     } else {
       jm.value = new jsMind(options);
-      jm.value.show(mind);
+      jm.value.show( res.data.rearticles);
     }
   } catch (error) {
     console.error('Failed to fetch articles mind:', error);
   }
 };
+
 </script>
 
 <style>

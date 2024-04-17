@@ -60,7 +60,7 @@ func (knowledgesService *KnowledgesService) UpdateKnowledges(knowledges knowledg
 
 // GetKnowledges 根据id获取knowledges表记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (knowledgesService *KnowledgesService) GetKnowledges(id string) (knowledges knowledge.Knowledges, err error) {
+func (knowledgesService *KnowledgesService) GetKnowledges(id int) (knowledges knowledge.Knowledges, err error) {
 	err = global.GVA_DB.Where("id = ?", id).First(&knowledges).Error
 	return
 }

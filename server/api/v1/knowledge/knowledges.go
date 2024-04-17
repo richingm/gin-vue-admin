@@ -9,6 +9,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"strconv"
 )
 
 type KnowledgesApi struct {
@@ -118,7 +119,8 @@ func (knowledgesApi *KnowledgesApi) UpdateKnowledges(c *gin.Context) {
 // @Router /knowledges/findKnowledges [get]
 func (knowledgesApi *KnowledgesApi) FindKnowledges(c *gin.Context) {
 	id := c.Query("id")
-	if reknowledges, err := knowledgesService.GetKnowledges(id); err != nil {
+	num, _ := strconv.Atoi(id)
+	if reknowledges, err := knowledgesService.GetKnowledges(num); err != nil {
 		global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
 	} else {

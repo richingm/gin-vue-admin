@@ -4,16 +4,20 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/article"
 	articleReq "github.com/flipped-aurora/gin-vue-admin/server/model/article/request"
+	response2 "github.com/flipped-aurora/gin-vue-admin/server/model/article/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
 	"github.com/gin-gonic/gin"
+	"github.com/samber/lo"
 	"go.uber.org/zap"
+	"strconv"
 )
 
 type ArticlesApi struct {
 }
 
 var articlesService = service.ServiceGroupApp.ArticleServiceGroup.ArticlesService
+var knowledgeService = service.ServiceGroupApp.KnowledgeServiceGroup.KnowledgesService
 
 // CreateArticles 创建articles表
 // @Tags Articles
@@ -147,5 +151,64 @@ func (articlesApi *ArticlesApi) GetArticlesList(c *gin.Context) {
 			Page:     pageInfo.Page,
 			PageSize: pageInfo.PageSize,
 		}, "获取成功", c)
+	}
+}
+
+// GetArticlesByKnowledgeId 根据知识库id获取文章
+// @Tags Articles
+// @Summary 根据知识库id获取文章
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data query articleReq.ArticlesSearchByKnowledgeId true "根据知识库id获取参数"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
+// @Router /articles/getArticlesMind [get]
+func (articlesApi *ArticlesApi) GetArticlesByKnowledgeId(c *gin.Context) {
+	var param articleReq.ArticlesSearchByKnowledgeId
+	err := c.ShouldBindQuery(&param)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	knowledges, err := knowledgeService.GetKnowledges(param.KnowledgeId)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	var pageInfo articleReq.ArticlesSearch
+	pageInfo.Page = 1
+	pageInfo.KnowledgeId = &param.KnowledgeId
+	pageInfo.PageSize = 999999999
+	list, _, err := articlesService.GetArticlesInfoList(pageInfo)
+	if err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		mind := response2.Mind{
+			Meta: response2.Meta{
+				Name:    "demo",
+				Author:  "hizzgdev@163.com",
+				Version: "0.2",
+			},
+			Format: "node_array",
+		}
+		root := response2.MindNode{ID: "root", IsRoot: true, Topic: knowledges.Name, Direction: "right"}
+		mind.Data = append(mind.Data, root)
+		data := lo.Map(list, func(item article.Articles, index int) response2.MindNode {
+			pid := strconv.Itoa(item.Pid)
+			if pid == "0" {
+				pid = "root"
+			}
+			return response2.MindNode{
+				ID:        strconv.Itoa(int(item.ID)),
+				Topic:     item.Title,
+				ParentId:  pid,
+				Direction: "right",
+			}
+		})
+		mind.Data = append(mind.Data, data...)
+		response.OkWithData(gin.H{"rearticles": mind}, c)
 	}
 }
