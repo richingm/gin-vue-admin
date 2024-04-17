@@ -18,6 +18,16 @@
       </el-form-item>
     </el-form>
     <div ref="jsMindContainer" id="jsMindContainer" style="height: 660px; border: 1px solid #ccc;"></div>
+    <div>
+    <el-drawer size="1500" v-model="detailShow" :before-close="closeDetailShow" title="查看内容" destroy-on-close>
+          <template #title>
+             <div class="flex justify-between items-center">
+               <span class="text-lg">查看内容</span>
+             </div>
+         </template>
+         <RichHtml v-model="formData.content"/>
+    </el-drawer>
+  </div>
   </div>
 </template>
 
@@ -30,10 +40,13 @@ import {
 } from '@/api/knowledge/knowledges'
 
 import {
-  getArticlesMind
+  getArticlesMind,
+  findArticles
 } from '@/api/article/articles'
 
 import { ref, reactive, onMounted, nextTick } from 'vue'
+
+import RichHtml from '@/components/richtext/rich-view.vue'
 
 const searchInfo = ref({knowledgeId: 0})
 
@@ -105,22 +118,18 @@ const mind = ref({});
 const options = {
   container: 'jsMindContainer', // Make sure this matches the ID in your template
   editable: true,
-  theme: 'primary',
-  default_event_handle: {
-      enable_mousedown_handle: true
-    },
-    event_handle: {
-      click_element_handle: (el) => handleNodeClick(el)
-    }
-};
+  theme: 'primary'
+  };
 
 const show_selected = () => {
-  console.log(jm)
-    var selected_node = jm.get_selected_node();
-    if (!!selected_node) {
-        console.log(selected_node.topic)
+      var selectedNode = jm.value.get_selected_node();
+    if (selectedNode) {
+      
+        console.log("选中的节点ID:", selectedNode.id);
+        getDetails(selectedNode.id)
+        console.log("选中的节点主题:", selectedNode.topic);
     } else {
-        console.log('nothing');
+        console.log("当前没有选中的节点");
     }
 }
 
@@ -136,6 +145,7 @@ onMounted(() => {
   nextTick(() => {
     if (jsMindContainer.value) {
       jm.value = new jsMind(options);
+      fetchMindData(0)
     } else {
       console.error('jsMind container not found in DOM');
     }    
@@ -150,7 +160,7 @@ const onSubmit = async () => {
 const selectedNodeId = ref(null); // 用于存储选中节点的 ID
 
 const onShow = async () => {
-  const node = jm.value.selected_node()
+  const node = jm.jsmind.selected_node()
   console.log(node)
 }
 
@@ -163,10 +173,43 @@ const fetchMindData = async (id) => {
       jm.value = new jsMind(options);
       jm.value.show( res.data.rearticles);
     }
+
+    var selectedNode = jm.value.get_selected_node();
+    if (selectedNode) {
+        console.log("选中的节点ID:", selectedNode.id);
+        console.log("选中的节点主题:", selectedNode.topic);
+    } else {
+        console.log("当前没有选中的节点");
+    }
   } catch (error) {
     console.error('Failed to fetch articles mind:', error);
   }
 };
+
+// 弹窗控制标记
+const dialogFormVisible = ref(false)
+
+
+// 查看详情控制标记
+const detailShow = ref(false)
+
+
+// 打开详情弹窗
+const openDetailShow = () => {
+  detailShow.value = true
+}
+
+// 打开详情
+const getDetails = async (id) => {
+  // 打开弹窗
+  const res = await findArticles({ id: id })
+  if (res.code === 0) {
+      console.log('111')
+    formData.value = res.data.rearticles
+    openDetailShow()
+  }
+  console.log('2222')
+}
 
 </script>
 
