@@ -49,7 +49,7 @@ func (articlesService *ArticlesService) GetArticles(ID string) (articles article
 }
 
 func (articlesService *ArticlesService) GetArticlesByIds(ids []int) (articles []article.Articles, err error) {
-	err = global.GVA_DB.Where("id in ?", ids).First(&articles).Error
+	err = global.GVA_DB.Where("id in ?", ids).Find(&articles).Error
 	return
 }
 
@@ -83,6 +83,7 @@ func (articlesService *ArticlesService) GetArticlesInfoList(info articleReq.Arti
 	}
 	var OrderStr string
 	orderMap := make(map[string]bool)
+	orderMap["id"] = true
 	orderMap["knowledge_id"] = true
 	orderMap["pid"] = true
 	orderMap["importance_level"] = true

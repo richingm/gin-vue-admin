@@ -1,6 +1,7 @@
 package article
 
 import (
+	"errors"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/article"
 	articleReq "github.com/flipped-aurora/gin-vue-admin/server/model/article/request"
@@ -10,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"strconv"
 )
 
@@ -141,6 +143,8 @@ func (articlesApi *ArticlesApi) GetArticlesList(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+	pageInfo.Sort = "id"
+	pageInfo.Order = "descending"
 	if list, total, err := articlesService.GetArticlesInfoList(pageInfo); err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
@@ -170,31 +174,37 @@ func (articlesApi *ArticlesApi) GetArticlesByKnowledgeId(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-
+	mind := response2.Mind{
+		Meta: response2.Meta{
+			Name:    "demo",
+			Author:  "hizzgdev@163.com",
+			Version: "0.2",
+		},
+		Format: "node_array",
+	}
+	root := response2.MindNode{ID: "root", IsRoot: true, Topic: "Default", Direction: "right"}
 	knowledges, err := knowledgeService.GetKnowledges(param.KnowledgeId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			mind.Data = append(mind.Data, root)
+			response.OkWithData(gin.H{"rearticles": mind}, c)
+			return
+		}
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+	root.Topic = knowledges.Name
 
 	var pageInfo articleReq.ArticlesSearch
 	pageInfo.Page = 1
 	pageInfo.KnowledgeId = &param.KnowledgeId
 	pageInfo.PageSize = 999999999
+	pageInfo.Sort = "id"
 	list, _, err := articlesService.GetArticlesInfoList(pageInfo)
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
 	} else {
-		mind := response2.Mind{
-			Meta: response2.Meta{
-				Name:    "demo",
-				Author:  "hizzgdev@163.com",
-				Version: "0.2",
-			},
-			Format: "node_array",
-		}
-		root := response2.MindNode{ID: "root", IsRoot: true, Topic: knowledges.Name, Direction: "right"}
 		mind.Data = append(mind.Data, root)
 		data := lo.Map(list, func(item article.Articles, index int) response2.MindNode {
 			pid := strconv.Itoa(item.Pid)
