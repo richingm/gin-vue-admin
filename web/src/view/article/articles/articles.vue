@@ -3,16 +3,23 @@
     <div class="gva-search-box">
       <el-form ref="elSearchFormRef" :inline="true" :model="searchInfo" class="demo-form-inline" :rules="searchRule" @keyup.enter="onSubmit">
         <el-form-item label="知识库" style="width:20%" prop="knowledgeId">
-                      <el-cascader
-                        v-model.number="searchInfo.knowledgeId"
-                        style="width:100%"
-                        :disabled="false"
-                        :options="knowledgeOption"
-                        :props="{ checkStrictly: true, label: 'name', value: 'id', emitPath: false }"
-                        :show-all-levels="false"
-                        filterable
-                      />
-                    </el-form-item>
+            <el-select
+              v-model="searchInfo.knowledgeId"
+              style="width:100%"
+              :disabled="false"
+              allow-create
+              default-first-option
+              filterable
+            >
+              <el-option
+                v-for="item in knowledgeOption"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+                :disabled="item.disabled"
+              />
+            </el-select>
+          </el-form-item>
         <el-form-item label="标题" prop="title">
          <el-input v-model="searchInfo.title" placeholder="搜索条件" />
         </el-form-item>
@@ -193,7 +200,7 @@ import {
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, formatBoolean, filterDict, ReturnArrImg, onDownloadFile } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, nextTick } from 'vue'
 
 // 富文本组件
 import RichEdit from '@/components/richtext/rich-edit.vue'
@@ -344,22 +351,36 @@ const handleCurrentChange = (val) => {
   getTableData()
 }
 
+const knowledgeOption = ref([])
+
 // 查询
 const getTableData = async() => {
-  const table = await getArticlesList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
-  if (table.code === 0) {
-    tableData.value = table.data.list
-    total.value = table.data.total
-    page.value = table.data.page
-    pageSize.value = table.data.pageSize
+  if (searchInfo.value.knowledgeId > 0) {
+    localStorage.setItem("cache_knowledge_id", searchInfo.value.knowledgeId);
+    console.log("global_name-xxx111:",searchInfo.value.knowledgeId);
+    const table = await getArticlesList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
+    if (table.code === 0) {
+     tableData.value = table.data.list
+     total.value = table.data.total
+     page.value = table.data.page
+     pageSize.value = table.data.pageSize
+    }
   }
 }
+
+const setKnowledgeId = () => {
+    let cache_knowledge_id = localStorage.getItem("cache_knowledge_id");
+    searchInfo.value.knowledgeId = cache_knowledge_id
+    formData.value.knowledgeId = cache_knowledge_id
+    console.log("global_name-123:",searchInfo.value.knowledgeId);
+}
+
+setKnowledgeId()
 
 getTableData()
 
 // ============== 表格控制部分结束 ===============
 
-const knowledgeOption = ref([])
 const parentArticleOption = ref([
   {
     id: 0,
